@@ -33,21 +33,31 @@ class MainActivity : AppCompatActivity() {
     private val formatter =
         SimpleDateFormat("dd-MM-yyyy_HH-mm", Locale.getDefault())
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        Log.d(TAG, "MainActivity created")
+
+        createLogFile()
+        startLogging()
+
+        buttonSend.setOnClickListener {
+            uploadLogs()
+        }
+    }
+
     private fun createLogFile() {
         val currentTime = formatter.format(Calendar.getInstance().time)
         val fileName = "logs-$currentTime.log"
 
         val fileDirectory = File(filesDir.absolutePath + File.separator + "sandboxLog")
         fileDirectory.mkdirs()
-        //Log.d(TAG, "FileDir exists? $fileDirectory, ${fileDirectory.exists()}")
+        Log.d(TAG, "FileDir exists? $fileDirectory, ${fileDirectory.exists()}")
 
         logFile = File(fileDirectory, fileName)
         logFile.createNewFile()
 
-        if (logFile.exists()) {
-            Toast.makeText(this, "LogFile created", Toast.LENGTH_SHORT).show()
-        }
-        //Log.d(TAG, "File exists? $logFile, ${logFile.exists()}")
+        Log.d(TAG, "File exists? $logFile, ${logFile.exists()}")
     }
 
     private fun startLogging() {
@@ -60,25 +70,9 @@ class MainActivity : AppCompatActivity() {
         loggingProcess.destroy()
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        Log.d(TAG, "MainActivity created")
-
-        createLogFile()
-        startLogging()
-
-        button.setOnClickListener {
-            Log.d(TAG, "Button pressed")
-            stopLogging()
-        }
-
-        buttonSend.setOnClickListener {
-            uploadLogs()
-        }
-    }
-
     private fun uploadLogs() {
+        stopLogging()
+
         val data = Data.Builder()
             .putString("file path", logFile.absolutePath)
             .build()

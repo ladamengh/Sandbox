@@ -4,7 +4,11 @@ import android.content.Context
 import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import androidx.work.impl.Schedulers
 import com.example.sandboxlog.service.RetrofitClient
+import io.reactivex.Scheduler
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers.io
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.File
