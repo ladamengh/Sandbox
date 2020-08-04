@@ -22,28 +22,20 @@ open class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         Log.d(TAG, "MainActivity created")
 
-        Thread.setDefaultUncaughtExceptionHandler(CrashHandler())
-
         button.setOnClickListener {
             // creating an exception
             RequestBody.create(MultipartBody.FORM, exceptionFile!!)
         }
 
         buttonSend.setOnClickListener {
-            SandboxApp().uploadLogs()
+            (application as SandboxApp).uploadLogs()
         }
 
         buttonSecondActivity.setOnClickListener {
             Log.d(TAG, "Starting second activity")
+
             val intent = Intent(this, SecondActivity::class.java)
             startActivity(intent)
         }
-    }
-
-
-
-    override fun onResume() {
-        super.onResume()
-        Log.d(TAG, "MainActivity resumed")
     }
 }

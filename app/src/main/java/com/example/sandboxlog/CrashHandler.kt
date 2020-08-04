@@ -1,8 +1,10 @@
 package com.example.sandboxlog
 
 import android.util.Log
+import java.util.concurrent.TimeUnit
+import kotlin.system.exitProcess
 
-class CrashHandler: Thread.UncaughtExceptionHandler {
+class CrashHandler(private val uploadLogs: () -> Unit): Thread.UncaughtExceptionHandler {
 
     companion object {
         @JvmField
@@ -12,6 +14,9 @@ class CrashHandler: Thread.UncaughtExceptionHandler {
     override fun uncaughtException(t: Thread, e: Throwable) {
         Log.e(TAG, "uncaught exception $e")
 
-        SandboxApp().uploadLogs()
+        uploadLogs()
+
+        TimeUnit.SECONDS.sleep(1)
+        exitProcess(1)
     }
 }

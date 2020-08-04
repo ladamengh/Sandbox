@@ -10,6 +10,8 @@ import androidx.work.WorkManager
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
+import kotlin.system.exitProcess
 
 class SandboxApp: Application(), MyCallbacks {
 
@@ -32,34 +34,49 @@ class SandboxApp: Application(), MyCallbacks {
 
         workManager = WorkManager.getInstance(this)
         registerActivityLifecycleCallbacks(this)
+        Thread.setDefaultUncaughtExceptionHandler(CrashHandler(this::uploadLogs))
+
+        createLogFile()
     }
 
-    fun createLogFile() {
+    private fun createLogFile() {
+        Log.d(TAG, "Creating new log file")
+
         val currentTime = formatter.format(Calendar.getInstance().time)
         val fileName = "logs-$currentTime.log"
 
         fileDirectory = File(filesDir.absolutePath + File.separator + "sandboxLog")
         fileDirectory.mkdirs()
-        Log.d(TAG, "FileDir exists? $fileDirectory, ${fileDirectory.exists()}")
 
         logFile = File(fileDirectory, fileName)
-        logFile.createNewFile()
 
-        Log.d(TAG, "File exists? $logFile, ${logFile.exists()}")
+        if (!logFile.exists()) {
+            logFile.createNewFile()
+            Log.d(TAG, "LogFile $logFile created")
+        } else {
+            Log.d(TAG, "Log file already exists")
+        }
+
+        startLogging()
     }
 
-    fun startLogging() {
+    private fun startLogging() {
+        Log.d(TAG, "Logging started")
+
         isLogging = true
         loggingProcess = Runtime.getRuntime().exec("logcat -f $logFile")
     }
 
     private fun stopLogging() {
+        Log.d(TAG, "Logging stopped")
+
         isLogging = false
+        loggingProcess = Runtime.getRuntime().exec("logcat -b all -c")
         loggingProcess.destroy()
     }
 
     fun uploadLogs() {
-        stopLogging()
+        Log.d(TAG, "Uploading log files on request")
 
         val data = Data.Builder()
             .putString("file path", logFile.absolutePath)
@@ -72,42 +89,41 @@ class SandboxApp: Application(), MyCallbacks {
         workManager.enqueue(request)
 
         createLogFile()
-        startLogging()
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         super.onActivityCreated(activity, savedInstanceState)
 
-        Log.d(TAG, "onActivityCreated method")
-        createLogFile()
-        startLogging()
+        isLogging = true
+        Log.d(TAG, "${activity.localClassName} onActivityCreated method")
     }
 
     override fun onActivityStarted(activity: Activity) {
         super.onActivityStarted(activity)
 
-        Log.d(TAG, "onActivityStarted method")
-        startLogging()
+        isLogging = true
+        Log.d(TAG, "${activity.localClassName} onActivityStarted method")
     }
 
     override fun onActivityResumed(activity: Activity) {
         super.onActivityResumed(activity)
 
-        Log.d(TAG, "onActivityResumed method")
-        startLogging()
+        isLogging = true
+        Log.d(TAG, "${activity.localClassName} onActivityResumed method")
     }
 
     override fun onActivityPaused(activity: Activity) {
         super.onActivityPaused(activity)
 
-        Log.d(TAG, "onActivityPaused method")
-        loggingProcess = Runtime.getRuntime().exec("logcat -c")
+        isLogging = false
+        Log.d(TAG, "${activity.localClassName} onActivityPaused method")
     }
 
     override fun onActivityStopped(activity: Activity) {
         super.onActivityStopped(activity)
 
-        Log.d(TAG, "onActivityStopped method")
-        loggingProcess = Runtime.getRuntime().exec("logcat -c")
+        isLogging = false
+        stopLogging()
+        Log.d(TAG, "${activity.localClassName} onActivityStopped method")
     }
 }
