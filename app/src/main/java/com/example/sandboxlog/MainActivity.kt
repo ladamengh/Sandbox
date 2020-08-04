@@ -1,9 +1,11 @@
 package com.example.sandboxlog
 
+import android.app.Activity
+import android.app.Application
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
@@ -12,12 +14,10 @@ import kotlinx.android.synthetic.main.activity_main.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.File
-import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.coroutines.coroutineContext
 
-class MainActivity : AppCompatActivity() {
+open class MainActivity : AppCompatActivity(), MyCallbacks {
 
     companion object {
         @JvmField
@@ -27,22 +27,40 @@ class MainActivity : AppCompatActivity() {
     private val workManager = WorkManager.getInstance(application)
 
     private lateinit var loggingProcess: Process
+    private var exceptionFile: File? = null
     private lateinit var logFile: File
     private var isLogging = false
 
     private val formatter =
-        SimpleDateFormat("dd-MM-yyyy_HH-mm", Locale.getDefault())
+        SimpleDateFormat("dd-MM-yyyy_HH-mm", Locale
+            .getDefault())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         Log.d(TAG, "MainActivity created")
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            registerActivityLifecycleCallbacks(this)
+        }
+
+        Thread.setDefaultUncaughtExceptionHandler(CrashHandler())
         createLogFile()
         startLogging()
 
+        button.setOnClickListener {
+            // creating an exception
+            RequestBody.create(MultipartBody.FORM, exceptionFile!!)
+        }
+
         buttonSend.setOnClickListener {
             uploadLogs()
+        }
+
+        buttonSecondActivity.setOnClickListener {
+            Log.d(TAG, "Starting second activity")
+            val intent = Intent(this, SecondActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -77,16 +95,46 @@ class MainActivity : AppCompatActivity() {
             .putString("file path", logFile.absolutePath)
             .build()
 
-        val request = OneTimeWorkRequest
-            .Builder(LogsWorker::class.java)
+        val request = OneTimeWorkRequest.Builder(LogsWorker::class.java)
             .setInputData(data)
             .build()
 
         workManager.enqueue(request)
+
+        createLogFile()
+        startLogging()
     }
 
     override fun onResume() {
         super.onResume()
         Log.d(TAG, "MainActivity resumed")
+    }
+
+    override fun onActivityStarted(activity: Activity) {
+        super.onActivityStarted(activity)
+
+        Log.d(TAG, "onActivityStarted method")
+        startLogging()
+    }
+
+    override fun onActivityResumed(activity: Activity) {
+        super.onActivityResumed(activity)
+
+        Log.d(TAG, "onActivityResumed method")
+        startLogging()
+    }
+
+    override fun onActivityPaused(activity: Activity) {
+        super.onActivityPaused(activity)
+
+        Log.d(TAG, "onActivityPaused method")
+        loggingProcess = Runtime.getRuntime().exec("logcat -c")
+    }
+
+    override fun onActivityStopped(activity: Activity) {
+        super.onActivityStopped(activity)
+
+        Log.d(TAG, "onActivityStopped method")
+        loggingProcess = Runtime.getRuntime().exec("logcat -c")
     }
 }

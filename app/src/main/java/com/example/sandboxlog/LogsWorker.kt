@@ -46,6 +46,9 @@ class LogsWorker(ctx: Context, params: WorkerParameters): Worker(ctx, params) {
             filePart
         )
 
-        apiService.uploadLogs(file)
+        val result = apiService.uploadLogs(file).execute()
+        if (result.isSuccessful) {
+            Log.d(TAG, "RESULT IS SUCCESSFUL")
+        }
     }
 }

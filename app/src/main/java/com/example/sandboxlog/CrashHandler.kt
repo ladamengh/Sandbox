@@ -2,7 +2,7 @@ package com.example.sandboxlog
 
 import android.util.Log
 
-public class CrashHandler: Thread.UncaughtExceptionHandler {
+class CrashHandler: Thread.UncaughtExceptionHandler {
 
     companion object {
         @JvmField
@@ -11,7 +11,5 @@ public class CrashHandler: Thread.UncaughtExceptionHandler {
 
     override fun uncaughtException(t: Thread, e: Throwable) {
         Log.e(TAG, "uncaught exception $e")
-
-        // TODO
     }
 }
