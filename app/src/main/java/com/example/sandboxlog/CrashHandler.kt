@@ -11,5 +11,7 @@ class CrashHandler: Thread.UncaughtExceptionHandler {
 
     override fun uncaughtException(t: Thread, e: Throwable) {
         Log.e(TAG, "uncaught exception $e")
+
+        SandboxApp().uploadLogs()
     }
 }
