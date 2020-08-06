@@ -4,7 +4,7 @@ import android.util.Log
 import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
 
-class CrashHandler(private val uploadLogs: () -> Unit): Thread.UncaughtExceptionHandler {
+class CrashHandler(val uploadLogs: () -> Unit): Thread.UncaughtExceptionHandler {
 
     companion object {
         @JvmField

@@ -47,8 +47,11 @@ class LogsWorker(ctx: Context, params: WorkerParameters): Worker(ctx, params) {
         )
 
         val result = apiService.uploadLogs(file).execute()
+
         if (result.isSuccessful) {
             Log.d(TAG, "RESULT IS SUCCESSFUL")
+        } else {
+            Log.e(TAG, "ERROR OCCURRED WHILE UPLOADING LOG FILE")
         }
     }
 }

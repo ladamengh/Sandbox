@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.work.WorkManager
 import kotlinx.android.synthetic.main.activity_main.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -15,7 +16,6 @@ open class MainActivity : AppCompatActivity() {
         @JvmField
         val TAG = MainActivity::class.java.simpleName
     }
-    private var exceptionFile: File? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,12 +23,11 @@ open class MainActivity : AppCompatActivity() {
         Log.d(TAG, "MainActivity created")
 
         button.setOnClickListener {
-            // creating an exception
-            RequestBody.create(MultipartBody.FORM, exceptionFile!!)
+            throw NullPointerException()
         }
 
         buttonSend.setOnClickListener {
-            (application as SandboxApp).uploadLogs()
+            (application as SandboxApp).upload()
         }
 
         buttonSecondActivity.setOnClickListener {

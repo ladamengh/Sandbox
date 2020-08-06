@@ -10,6 +10,6 @@ import retrofit2.http.Part
 interface GateDataService {
 
     @Multipart
-    @POST("/")
+    @POST("/logs_ecpshare")
     fun uploadLogs(@Part file: MultipartBody.Part): Call<ResponseBody>
 }
