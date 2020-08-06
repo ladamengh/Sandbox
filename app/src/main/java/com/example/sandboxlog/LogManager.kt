@@ -92,5 +92,4 @@ class LogManager() {
             loggingProcess = Runtime.getRuntime().exec("logcat -f $logFile")
         }
     }
-
 }

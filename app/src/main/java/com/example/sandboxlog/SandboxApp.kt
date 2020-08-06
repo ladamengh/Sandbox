@@ -21,7 +21,7 @@ class SandboxApp: Application(), MyCallbacks {
         val TAG = SandboxApp::class.java.simpleName
     }
 
-    private val logManager = LogManager()
+    val logManager = LogManager()
     private lateinit var workManager: WorkManager
 
     override fun onCreate() {
@@ -36,10 +36,6 @@ class SandboxApp: Application(), MyCallbacks {
 
         val fileDirectory = File(filesDir.absolutePath + File.separator + "sandboxLog")
         logManager.createLogFile(fileDirectory)
-    }
-
-    fun upload() {
-        logManager.uploadLogs()
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
