@@ -1,5 +1,6 @@
 package com.example.sandboxlog
 
+import android.content.Context
 import android.util.Log
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
@@ -16,21 +17,11 @@ class LogManager() {
         val TAG = LogManager::class.java.simpleName
     }
 
-    private lateinit var loggingProcess: Process
-    private lateinit var logFile: File
+    lateinit var loggingProcess: Process
+    lateinit var logFile: File
     private lateinit var fileDir: File
-    private var isLogging = false
-    private lateinit var manager: WorkManager
 
     private val formatter = SimpleDateFormat("dd-MM-yyyy_HH-mm", Locale.getDefault())
-
-    fun setCrashHandler() {
-        Thread.setDefaultUncaughtExceptionHandler(CrashHandler(this::uploadLogs))
-    }
-
-    fun setWorkManager(workManager: WorkManager) {
-        manager = workManager
-    }
 
     fun createLogFile(filesDirectory: File) {
         Log.d(TAG, "Creating new log file")
@@ -51,45 +42,32 @@ class LogManager() {
         }
     }
 
-    fun startLogging() {
-        Log.d(TAG, "Logging started")
+    fun getFilePath(): String { return logFile.absolutePath }
 
-        isLogging = true
+    fun resumeLogging() {
+        Log.d(TAG, "Logging resumed")
+
+        loggingProcess.destroy()
+        loggingProcess.waitFor()
         loggingProcess = Runtime.getRuntime().exec("logcat -f $logFile")
+    }
+
+    fun pauseLogging() {
+        Log.d(TAG, "Logging paused")
+
+        loggingProcess.destroy()
+        loggingProcess.waitFor()
+        loggingProcess = Runtime.getRuntime().exec("logcat -b all -c")
     }
 
     fun stopLogging() {
         Log.d(TAG, "Logging stopped")
 
-        isLogging = false
-        loggingProcess = Runtime.getRuntime().exec("logcat -b all -c")
         loggingProcess.destroy()
-    }
-
-    fun uploadLogs() {
-        Log.d(TAG, "Uploading log files on request")
-
-        val data = Data.Builder()
-            .putString("file path", logFile.absolutePath)
-            .build()
-
-        val request = OneTimeWorkRequest.Builder(LogsWorker::class.java)
-            .setInputData(data)
-            .build()
-
-        thread {
-            loggingProcess.destroy()
-            loggingProcess.waitFor()
-            loggingProcess = Runtime.getRuntime().exec("logcat -b all -c")
-            loggingProcess.waitFor()
-            loggingProcess.destroy()
-            loggingProcess.waitFor()
-
-            manager.enqueue(request)
-
-            createLogFile(fileDir)
-
-            loggingProcess = Runtime.getRuntime().exec("logcat -f $logFile")
-        }
+        loggingProcess.waitFor()
+        loggingProcess = Runtime.getRuntime().exec("logcat -b all -c")
+        loggingProcess.waitFor()
+        loggingProcess.destroy()
+        loggingProcess.waitFor()
     }
 }

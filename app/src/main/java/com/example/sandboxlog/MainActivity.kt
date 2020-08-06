@@ -17,8 +17,6 @@ open class MainActivity : AppCompatActivity() {
         val TAG = MainActivity::class.java.simpleName
     }
 
-    private val logManagerObject = (application as SandboxApp).logManager
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -29,7 +27,7 @@ open class MainActivity : AppCompatActivity() {
         }
 
         buttonSend.setOnClickListener {
-            logManagerObject.uploadLogs()
+            (application as SandboxApp).uploadLogs()
         }
 
         buttonSecondActivity.setOnClickListener {

@@ -8,11 +8,6 @@ import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.*
-import java.util.concurrent.TimeUnit
-import kotlin.concurrent.thread
-import kotlin.system.exitProcess
 
 class SandboxApp: Application(), MyCallbacks {
 
@@ -21,50 +16,72 @@ class SandboxApp: Application(), MyCallbacks {
         val TAG = SandboxApp::class.java.simpleName
     }
 
-    val logManager = LogManager()
+    private val logManager = LogManager()
     private lateinit var workManager: WorkManager
+    private lateinit var fileDir: File
 
     override fun onCreate() {
         super.onCreate()
 
         workManager = WorkManager.getInstance(applicationContext)
 
-        logManager.setCrashHandler()
-        logManager.setWorkManager(workManager)
+        Thread.setDefaultUncaughtExceptionHandler(
+            CrashHandler(
+                { logManager.stopLogging() },
+                { logManager.getFilePath() }
+            )
+        )
 
         registerActivityLifecycleCallbacks(this)
 
-        val fileDirectory = File(filesDir.absolutePath + File.separator + "sandboxLog")
-        logManager.createLogFile(fileDirectory)
+        fileDir = File(filesDir.absolutePath + File.separator + "sandboxLog")
+        logManager.createLogFile(fileDir)
+    }
+
+    fun uploadLogs() {
+        Log.d(TAG, "Uploading log files on request")
+
+        val data = Data.Builder()
+            .putString("file path", logManager.getFilePath())
+            .build()
+
+        val request = OneTimeWorkRequest.Builder(LogsWorker::class.java)
+            .setInputData(data)
+            .build()
+
+        //thread {
+        logManager.stopLogging()
+
+        workManager.enqueue(request)
+
+        logManager.createLogFile(fileDir)
+        logManager.resumeLogging()
+        //}
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         super.onActivityCreated(activity, savedInstanceState)
 
-        //isLogging = true
         Log.d(TAG, "${activity.localClassName} onActivityCreated method")
     }
 
     override fun onActivityStarted(activity: Activity) {
         super.onActivityStarted(activity)
 
-        //isLogging = true
         Log.d(TAG, "${activity.localClassName} onActivityStarted method")
     }
 
     override fun onActivityResumed(activity: Activity) {
         super.onActivityResumed(activity)
 
-        //isLogging = true
-        logManager.startLogging()
+        logManager.loggingProcess = Runtime.getRuntime().exec("logcat -f ${logManager.logFile}")
         Log.d(TAG, "${activity.localClassName} onActivityResumed method")
     }
 
     override fun onActivityPaused(activity: Activity) {
         super.onActivityPaused(activity)
 
-        //isLogging = false
-        logManager.stopLogging()
+        logManager.pauseLogging()
         Log.d(TAG, "${activity.localClassName} onActivityPaused method")
     }
 
