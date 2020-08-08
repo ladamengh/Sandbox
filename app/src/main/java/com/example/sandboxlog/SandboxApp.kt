@@ -16,26 +16,36 @@ class SandboxApp: Application(), MyCallbacks {
         val TAG = SandboxApp::class.java.simpleName
     }
 
-    private val logManager = LogManager()
     private lateinit var workManager: WorkManager
     private lateinit var fileDir: File
+    private lateinit var logManager: LogManager
 
     override fun onCreate() {
         super.onCreate()
 
         workManager = WorkManager.getInstance(applicationContext)
+        fileDir = File(filesDir.absolutePath + File.separator + "sandboxLog")
+        logManager = LogManager(fileDir)
 
         Thread.setDefaultUncaughtExceptionHandler(
-            CrashHandler(
-                { logManager.stopLogging() },
-                { logManager.getFilePath() }
-            )
+            CrashHandler {
+                logManager.stopLogging()
+                val data = Data.Builder()
+                    .putString("file path", logManager.getFilePath())
+                    .build()
+
+                val request = OneTimeWorkRequest.Builder(LogsWorker::class.java)
+                    .setInputData(data)
+                    .build()
+
+                WorkManager.getInstance(this).enqueue(request)
+            }
         )
 
         registerActivityLifecycleCallbacks(this)
 
-        fileDir = File(filesDir.absolutePath + File.separator + "sandboxLog")
-        logManager.createLogFile(fileDir)
+        logManager.createLogFile()
+        logManager.startLogging()
     }
 
     fun uploadLogs() {
@@ -54,7 +64,7 @@ class SandboxApp: Application(), MyCallbacks {
 
         workManager.enqueue(request)
 
-        logManager.createLogFile(fileDir)
+        logManager.createLogFile()
         logManager.resumeLogging()
         //}
     }
@@ -74,7 +84,7 @@ class SandboxApp: Application(), MyCallbacks {
     override fun onActivityResumed(activity: Activity) {
         super.onActivityResumed(activity)
 
-        logManager.loggingProcess = Runtime.getRuntime().exec("logcat -f ${logManager.logFile}")
+        logManager.resumeLogging()
         Log.d(TAG, "${activity.localClassName} onActivityResumed method")
     }
 

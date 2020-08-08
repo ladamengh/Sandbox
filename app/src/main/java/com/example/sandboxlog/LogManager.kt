@@ -1,16 +1,11 @@
 package com.example.sandboxlog
 
-import android.content.Context
 import android.util.Log
-import androidx.work.Data
-import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkManager
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.concurrent.thread
 
-class LogManager() {
+class LogManager(private val filesDirectory: File) {
 
     companion object {
         @JvmField
@@ -19,20 +14,18 @@ class LogManager() {
 
     lateinit var loggingProcess: Process
     lateinit var logFile: File
-    private lateinit var fileDir: File
 
     private val formatter = SimpleDateFormat("dd-MM-yyyy_HH-mm", Locale.getDefault())
 
-    fun createLogFile(filesDirectory: File) {
+    fun createLogFile() {
         Log.d(TAG, "Creating new log file")
 
         val currentTime = formatter.format(Calendar.getInstance().time)
         val fileName = "logs-$currentTime.log"
 
-        fileDir = filesDirectory
-        fileDir.mkdirs()
+        filesDirectory.mkdirs()
 
-        logFile = File(fileDir, fileName)
+        logFile = File(filesDirectory, fileName)
 
         if (!logFile.exists()) {
             logFile.createNewFile()
@@ -43,6 +36,12 @@ class LogManager() {
     }
 
     fun getFilePath(): String { return logFile.absolutePath }
+
+    fun startLogging() {
+        Log.d(TAG, "Logging started")
+
+        loggingProcess = Runtime.getRuntime().exec("logcat -f $logFile")
+    }
 
     fun resumeLogging() {
         Log.d(TAG, "Logging resumed")
@@ -57,7 +56,6 @@ class LogManager() {
 
         loggingProcess.destroy()
         loggingProcess.waitFor()
-        loggingProcess = Runtime.getRuntime().exec("logcat -b all -c")
     }
 
     fun stopLogging() {

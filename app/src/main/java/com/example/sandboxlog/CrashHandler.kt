@@ -7,10 +7,7 @@ import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
 
-class CrashHandler(
-    val stopLogging: () -> Unit,
-    val getFilePath: () -> String
-): Thread.UncaughtExceptionHandler {
+class CrashHandler(val uploadCrashLogs: () -> Unit): Thread.UncaughtExceptionHandler {
 
     companion object {
         @JvmField
@@ -20,17 +17,7 @@ class CrashHandler(
     override fun uncaughtException(t: Thread, e: Throwable) {
         Log.e(TAG, "uncaught exception $e")
 
-        stopLogging()
-
-        val data = Data.Builder()
-            .putString("file path", getFilePath())
-            .build()
-
-        val request = OneTimeWorkRequest.Builder(LogsWorker::class.java)
-            .setInputData(data)
-            .build()
-
-        WorkManager.getInstance().enqueue(request)
+        uploadCrashLogs()
 
         TimeUnit.SECONDS.sleep(1)
         exitProcess(1)
