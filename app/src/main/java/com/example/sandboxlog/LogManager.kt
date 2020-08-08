@@ -37,23 +37,19 @@ class LogManager(private val filesDirectory: File) {
 
     fun getFilePath(): String { return logFile.absolutePath }
 
-    fun startLogging() {
-        Log.d(TAG, "Logging started")
-
-        loggingProcess = Runtime.getRuntime().exec("logcat -f $logFile")
-    }
-
     fun resumeLogging() {
         Log.d(TAG, "Logging resumed")
 
-        loggingProcess.destroy()
-        loggingProcess.waitFor()
         loggingProcess = Runtime.getRuntime().exec("logcat -f $logFile")
     }
 
     fun pauseLogging() {
         Log.d(TAG, "Logging paused")
 
+        loggingProcess.destroy()
+        loggingProcess.waitFor()
+        loggingProcess = Runtime.getRuntime().exec("logcat -f $logFile")
+        loggingProcess.waitFor()
         loggingProcess.destroy()
         loggingProcess.waitFor()
     }

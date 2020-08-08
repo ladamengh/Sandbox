@@ -45,7 +45,6 @@ class SandboxApp: Application(), MyCallbacks {
         registerActivityLifecycleCallbacks(this)
 
         logManager.createLogFile()
-        logManager.startLogging()
     }
 
     fun uploadLogs() {
@@ -59,14 +58,12 @@ class SandboxApp: Application(), MyCallbacks {
             .setInputData(data)
             .build()
 
-        //thread {
         logManager.stopLogging()
 
         workManager.enqueue(request)
 
         logManager.createLogFile()
         logManager.resumeLogging()
-        //}
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
