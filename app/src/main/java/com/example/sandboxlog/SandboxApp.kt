@@ -27,20 +27,7 @@ class SandboxApp: Application(), MyCallbacks {
         fileDir = File(filesDir.absolutePath + File.separator + "sandboxLog")
         logManager = LogManager(fileDir)
 
-        Thread.setDefaultUncaughtExceptionHandler(
-            CrashHandler {
-                logManager.stopLogging()
-                val data = Data.Builder()
-                    .putString("file path", logManager.getFilePath())
-                    .build()
-
-                val request = OneTimeWorkRequest.Builder(LogsWorker::class.java)
-                    .setInputData(data)
-                    .build()
-
-                WorkManager.getInstance(this).enqueue(request)
-            }
-        )
+        Thread.setDefaultUncaughtExceptionHandler(CrashHandler { enqueueRequest() })
 
         registerActivityLifecycleCallbacks(this)
 
@@ -50,6 +37,15 @@ class SandboxApp: Application(), MyCallbacks {
     fun uploadLogs() {
         Log.d(TAG, "Uploading log files on request")
 
+        enqueueRequest()
+
+        logManager.createLogFile()
+        logManager.resumeLogging()
+    }
+
+    private fun enqueueRequest() {
+        logManager.stopLogging()
+
         val data = Data.Builder()
             .putString("file path", logManager.getFilePath())
             .build()
@@ -58,12 +54,7 @@ class SandboxApp: Application(), MyCallbacks {
             .setInputData(data)
             .build()
 
-        logManager.stopLogging()
-
         workManager.enqueue(request)
-
-        logManager.createLogFile()
-        logManager.resumeLogging()
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {

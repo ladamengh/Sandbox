@@ -48,10 +48,6 @@ class LogManager(private val filesDirectory: File) {
 
         loggingProcess.destroy()
         loggingProcess.waitFor()
-        loggingProcess = Runtime.getRuntime().exec("logcat -f $logFile")
-        loggingProcess.waitFor()
-        loggingProcess.destroy()
-        loggingProcess.waitFor()
     }
 
     fun stopLogging() {
