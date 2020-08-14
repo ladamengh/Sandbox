@@ -16,7 +16,7 @@ class LogManager(private val filesDirectory: File) {
     private var logFile: File? = null
     private var actualFilePath: String? = null
 
-    private val formatter = SimpleDateFormat("dd-MM-yyyy_HH-mm", Locale.getDefault())
+    private val formatter = SimpleDateFormat("dd-MM-yyyy_HH-mm-ss.SSS", Locale.getDefault())
 
     private fun Process.finish() {
         this.destroy()
@@ -41,7 +41,7 @@ class LogManager(private val filesDirectory: File) {
     fun resumeLogging() {
         Log.d(TAG, "Logging resumed")
 
-        if (actualFilePath == null) createLogFile()
+        if (actualFilePath == null || logFile == null) createLogFile()
 
         loggingProcess = Runtime.getRuntime().exec("logcat -f $logFile")
     }
