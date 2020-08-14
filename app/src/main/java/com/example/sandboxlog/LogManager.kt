@@ -13,32 +13,35 @@ class LogManager(private val filesDirectory: File) {
     }
 
     lateinit var loggingProcess: Process
-    lateinit var logFile: File
+    private var logFile: File? = null
+    private var actualFilePath: String? = null
 
     private val formatter = SimpleDateFormat("dd-MM-yyyy_HH-mm", Locale.getDefault())
 
-    fun createLogFile() {
+    private fun Process.finish() {
+        this.destroy()
+        this.waitFor()
+    }
+
+    private fun createLogFile() {
         Log.d(TAG, "Creating new log file")
 
         val currentTime = formatter.format(Calendar.getInstance().time)
         val fileName = "logs-$currentTime.log"
 
         filesDirectory.mkdirs()
-
         logFile = File(filesDirectory, fileName)
+        actualFilePath = logFile!!.absolutePath
 
-        if (!logFile.exists()) {
-            logFile.createNewFile()
-            Log.d(TAG, "LogFile $logFile created")
-        } else {
-            Log.d(TAG, "Log file already exists")
-        }
+        Log.d(TAG, "LogFile $logFile created")
     }
 
-    fun getFilePath(): String { return logFile.absolutePath }
+    fun getFilePath(): String? { return actualFilePath }
 
     fun resumeLogging() {
         Log.d(TAG, "Logging resumed")
+
+        if (actualFilePath == null) createLogFile()
 
         loggingProcess = Runtime.getRuntime().exec("logcat -f $logFile")
     }
@@ -46,18 +49,18 @@ class LogManager(private val filesDirectory: File) {
     fun pauseLogging() {
         Log.d(TAG, "Logging paused")
 
-        loggingProcess.destroy()
-        loggingProcess.waitFor()
+        loggingProcess.finish()
     }
 
     fun stopLogging() {
         Log.d(TAG, "Logging stopped")
 
-        loggingProcess.destroy()
-        loggingProcess.waitFor()
+        logFile = null
+        Log.d(TAG, "LOGFILE IS NULL")
+
+        loggingProcess.finish()
         loggingProcess = Runtime.getRuntime().exec("logcat -b all -c")
         loggingProcess.waitFor()
-        loggingProcess.destroy()
-        loggingProcess.waitFor()
+        loggingProcess.finish()
     }
 }

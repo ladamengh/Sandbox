@@ -28,6 +28,7 @@ class LogsWorker(ctx: Context, params: WorkerParameters): Worker(ctx, params) {
 
         return try {
             filePathData = inputData.getString("file path").toString()
+            Log.d(TAG, filePathData)
             uploadLogs(filePathData)
             Result.success()
         } catch (throwable: Throwable) {

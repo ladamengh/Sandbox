@@ -30,8 +30,6 @@ class SandboxApp: Application(), MyCallbacks {
         Thread.setDefaultUncaughtExceptionHandler(CrashHandler { enqueueRequest() })
 
         registerActivityLifecycleCallbacks(this)
-
-        logManager.createLogFile()
     }
 
     fun uploadLogs() {
@@ -39,8 +37,7 @@ class SandboxApp: Application(), MyCallbacks {
 
         enqueueRequest()
 
-        logManager.createLogFile()
-        logManager.resumeLogging()
+        //logManager.resumeLogging()
     }
 
     private fun enqueueRequest() {

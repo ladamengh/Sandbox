@@ -27,6 +27,7 @@ open class MainActivity : AppCompatActivity() {
         }
 
         buttonSend.setOnClickListener {
+            Log.e(TAG, "BUTTON PRESSED")
             (application as SandboxApp).uploadLogs()
         }
 
