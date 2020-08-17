@@ -19,9 +19,8 @@ class CrashHandler(private val uploadLogs: UploadLogs): Thread.UncaughtException
     override fun uncaughtException(t: Thread, e: Throwable) {
         Log.e(TAG, "uncaught exception $e")
 
-        runBlocking { uploadLogs.invoke() }
+        runBlocking { uploadLogs() }
 
-        TimeUnit.SECONDS.sleep(1)
         exitProcess(1)
     }
 }

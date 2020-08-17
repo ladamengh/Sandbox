@@ -14,11 +14,11 @@ class ActivityLifecycleLogManager(
 ): Application.ActivityLifecycleCallbacks {
 
     override fun onActivityResumed(activity: Activity) {
-        startLogging.invoke()
+        startLogging()
     }
 
     override fun onActivityPaused(activity: Activity) {
-        GlobalScope.launch { pauseLogging.invoke() }
+        GlobalScope.launch { pauseLogging() }
     }
 
     override fun onActivityStarted(activity: Activity) {}

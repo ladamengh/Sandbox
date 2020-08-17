@@ -18,6 +18,8 @@ class LogsWorker(ctx: Context, params: WorkerParameters): Worker(ctx, params) {
     companion object {
         @JvmField
         val TAG = LogsWorker::class.java.simpleName
+
+        private var FILE_PATH = "file path"
     }
 
     private val apiService = RetrofitClient.create()
@@ -26,33 +28,33 @@ class LogsWorker(ctx: Context, params: WorkerParameters): Worker(ctx, params) {
     override fun doWork(): Result {
         Log.d(TAG,"Loading logs to the server")
 
-        return try {
-            filePathData = inputData.getString("file path").toString()
-            Log.d(TAG, filePathData)
-            uploadLogs(filePathData)
-            Result.success()
-        } catch (throwable: Throwable) {
-            Log.e(TAG,"Error $throwable")
-            Result.failure()
+        filePathData = inputData.getString(FILE_PATH).toString()
+
+        if (filePathData.isNullOrEmpty()) {
+            return Result.failure()
         }
+
+        uploadLogs(filePathData)
+        return Result.success()
     }
 
-    private fun uploadLogs(filePath: String) {
-        val logFile = File(filePath)
+    private fun uploadLogs(filePath: String): Result {
+        return try {
+            val logFile = File(filePath)
 
-        val filePart = RequestBody.create(MultipartBody.FORM, logFile)
-        val file = MultipartBody.Part.createFormData(
-            logFile.name,
-            logFile.name,
-            filePart
-        )
+            val filePart = RequestBody.create(MultipartBody.FORM, logFile)
+            val file = MultipartBody.Part.createFormData(
+                logFile.name,
+                logFile.name,
+                filePart
+            )
 
-        val result = apiService.uploadLogs(file).execute()
+            val result = apiService.uploadLogs(file).execute()
 
-        if (result.isSuccessful) {
-            Log.d(TAG, "RESULT IS SUCCESSFUL")
-        } else {
-            Log.e(TAG, "ERROR OCCURRED WHILE UPLOADING LOG FILE")
-        }
+            if (result.isSuccessful) Result.success() else Result.failure()
+        } catch (throwable: Throwable) {
+             Log.e(TAG, "An error occurred: $throwable")
+             Result.failure()
+         }
     }
 }

@@ -19,8 +19,8 @@ class SandboxApp: Application(){
         val TAG = SandboxApp::class.java.simpleName
     }
 
-    lateinit var startLogging: StartLogging
-    lateinit var pauseLogging: PauseLogging
+    private lateinit var startLogging: StartLogging
+    private lateinit var pauseLogging: PauseLogging
     lateinit var uploadLogs: UploadLogs
 
     private lateinit var workManager: WorkManager
@@ -33,10 +33,12 @@ class SandboxApp: Application(){
         Log.d(TAG, "onCreate method called")
 
         workManager = WorkManager.getInstance(applicationContext)
+
         fileDir = File(filesDir.absolutePath + File.separator + "sandboxLog")
+        fileDir.mkdirs()
         logManager = LogManager(fileDir)
 
-        logRepositoryImpl = LogRepositoryImpl(logManager)
+        logRepositoryImpl = LogRepositoryImpl(logManager, workManager)
         startLogging = StartLogging(logRepositoryImpl)
         pauseLogging = PauseLogging(logRepositoryImpl)
         uploadLogs = UploadLogs(logRepositoryImpl)

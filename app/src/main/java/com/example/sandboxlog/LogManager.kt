@@ -2,8 +2,11 @@ package com.example.sandboxlog
 
 import android.util.Log
 import java.io.File
+import java.io.FileNotFoundException
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class LogManager(private val filesDirectory: File) {
 
@@ -14,34 +17,36 @@ class LogManager(private val filesDirectory: File) {
 
     lateinit var loggingProcess: Process
     private var logFile: File? = null
-    private var actualFilePath: String? = null
+
+    private var _actualFilePath: String? = null
+    val actualFilePath get() = _actualFilePath
 
     private val formatter = SimpleDateFormat("dd-MM-yyyy_HH-mm-ss.SSS", Locale.getDefault())
 
-    private fun Process.finish() {
-        this.destroy()
-        this.waitFor()
-    }
-
     private fun createLogFile() {
-        Log.d(TAG, "Creating new log file")
+        try {
+            Log.d(TAG, "Creating new log file")
 
-        val currentTime = formatter.format(Calendar.getInstance().time)
-        val fileName = "logs-$currentTime.log"
+            val currentTime = formatter.format(Calendar.getInstance().time)
+            val fileName = "logs-$currentTime.log"
 
-        filesDirectory.mkdirs()
-        logFile = File(filesDirectory, fileName)
-        actualFilePath = logFile!!.absolutePath
+            logFile = File(filesDirectory, fileName).also {
+                _actualFilePath = it.absolutePath
+                it.createNewFile()
+            }
 
-        Log.d(TAG, "LogFile $logFile created")
+            Log.d(TAG, "LogFile $logFile created")
+        } catch (e: FileNotFoundException) {
+            Log.e(TAG, "File directory is not found: $e")
+        }
     }
-
-    fun getFilePath(): String? { return actualFilePath }
 
     fun resumeLogging() {
         Log.d(TAG, "Logging resumed")
 
-        if (actualFilePath == null || logFile == null) createLogFile()
+        if (logFile == null) {
+            createLogFile()
+        }
 
         loggingProcess = Runtime.getRuntime().exec("logcat -f $logFile")
     }
@@ -62,5 +67,14 @@ class LogManager(private val filesDirectory: File) {
         loggingProcess = Runtime.getRuntime().exec("logcat -b all -c")
         loggingProcess.waitFor()
         loggingProcess.finish()
+    }
+
+    private fun Process.finish() {
+        try {
+            exitValue()
+        } catch (e: IllegalThreadStateException) {
+            destroy()
+            waitFor()
+        }
     }
 }

@@ -9,33 +9,42 @@ import com.example.sandboxlog.LogsWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.invoke
+import kotlinx.coroutines.withContext
 
-class LogRepositoryImpl(private val logManager: LogManager): LogRepository {
+class LogRepositoryImpl(
+    private val logManager: LogManager,
+    private val workManager: WorkManager
+): LogRepository {
+
+    companion object {
+        private var FILE_PATH = "file path"
+    }
+
     override fun startLogging() {
         logManager.resumeLogging()
     }
 
     @ExperimentalCoroutinesApi
     override suspend fun pauseLogging() {
-        Dispatchers.IO {
+        withContext(Dispatchers.IO) {
             logManager.pauseLogging()
         }
     }
 
     @ExperimentalCoroutinesApi
     override suspend fun stopLogging() {
-        Dispatchers.IO {
+        withContext(Dispatchers.IO) {
             logManager.stopLogging()
         }
     }
 
     @ExperimentalCoroutinesApi
     override suspend fun uploadLogs() {
-        Dispatchers.IO {
+        withContext(Dispatchers.IO) {
             stopLogging()
 
             val data = Data.Builder()
-                .putString("file path", logManager.getFilePath())
+                .putString(FILE_PATH, logManager.actualFilePath)
                 .build()
 
             val request = OneTimeWorkRequest.Builder(LogsWorker::class.java)
@@ -44,7 +53,9 @@ class LogRepositoryImpl(private val logManager: LogManager): LogRepository {
 
             Log.d("LogRepositoryImpl", "Trying to enqueue request")
 
-            WorkManager.getInstance().enqueue(request) // ???without context
+            workManager.enqueue(request)
+
+            startLogging()
         }
     }
 }
