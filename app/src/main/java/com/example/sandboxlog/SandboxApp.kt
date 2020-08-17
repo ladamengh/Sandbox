@@ -19,9 +19,9 @@ class SandboxApp: Application(){
         val TAG = SandboxApp::class.java.simpleName
     }
 
-    private lateinit var startLogging: StartLogging
-    private lateinit var pauseLogging: PauseLogging
+    lateinit var startLogging: StartLogging
     lateinit var uploadLogs: UploadLogs
+    private lateinit var pauseLogging: PauseLogging
 
     private lateinit var workManager: WorkManager
     private lateinit var fileDir: File

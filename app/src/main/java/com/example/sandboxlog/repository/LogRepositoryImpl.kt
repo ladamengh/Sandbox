@@ -17,28 +17,25 @@ class LogRepositoryImpl(
 ): LogRepository {
 
     companion object {
-        private var FILE_PATH = "file path"
+        const val FILE_PATH = "file path"
     }
 
     override fun startLogging() {
         logManager.resumeLogging()
     }
 
-    @ExperimentalCoroutinesApi
     override suspend fun pauseLogging() {
         withContext(Dispatchers.IO) {
             logManager.pauseLogging()
         }
     }
 
-    @ExperimentalCoroutinesApi
     override suspend fun stopLogging() {
         withContext(Dispatchers.IO) {
             logManager.stopLogging()
         }
     }
 
-    @ExperimentalCoroutinesApi
     override suspend fun uploadLogs() {
         withContext(Dispatchers.IO) {
             stopLogging()
@@ -54,8 +51,6 @@ class LogRepositoryImpl(
             Log.d("LogRepositoryImpl", "Trying to enqueue request")
 
             workManager.enqueue(request)
-
-            startLogging()
         }
     }
 }

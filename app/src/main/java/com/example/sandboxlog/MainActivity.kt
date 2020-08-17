@@ -30,7 +30,10 @@ open class MainActivity : AppCompatActivity() {
 
         buttonSend.setOnClickListener {
             Log.e(TAG, "BUTTON PRESSED")
-            GlobalScope.launch { (application as SandboxApp).uploadLogs.invoke() }
+            GlobalScope.launch {
+                (application as SandboxApp).uploadLogs()
+                (application as SandboxApp).startLogging()
+            }
         }
 
         buttonSecondActivity.setOnClickListener {

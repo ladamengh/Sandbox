@@ -18,27 +18,25 @@ class LogManager(private val filesDirectory: File) {
     lateinit var loggingProcess: Process
     private var logFile: File? = null
 
-    private var _actualFilePath: String? = null
-    val actualFilePath get() = _actualFilePath
+    var actualFilePath: String? = null
+        private set
 
     private val formatter = SimpleDateFormat("dd-MM-yyyy_HH-mm-ss.SSS", Locale.getDefault())
 
     private fun createLogFile() {
-        try {
-            Log.d(TAG, "Creating new log file")
+        Log.d(TAG, "Creating new log file")
 
-            val currentTime = formatter.format(Calendar.getInstance().time)
-            val fileName = "logs-$currentTime.log"
+        if (!filesDirectory.exists()) throw FileNotFoundException("File directory doesn't exist")
 
-            logFile = File(filesDirectory, fileName).also {
-                _actualFilePath = it.absolutePath
-                it.createNewFile()
-            }
+        val currentTime = formatter.format(Calendar.getInstance().time)
+        val fileName = "logs-$currentTime.log"
 
-            Log.d(TAG, "LogFile $logFile created")
-        } catch (e: FileNotFoundException) {
-            Log.e(TAG, "File directory is not found: $e")
+        logFile = File(filesDirectory, fileName).also {
+            it.createNewFile()
+            actualFilePath = it.absolutePath
         }
+
+        Log.d(TAG, "LogFile $logFile created")
     }
 
     fun resumeLogging() {
