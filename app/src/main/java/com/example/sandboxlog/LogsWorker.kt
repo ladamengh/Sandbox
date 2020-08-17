@@ -4,14 +4,8 @@ import android.content.Context
 import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import androidx.work.impl.Schedulers
-import com.example.sandboxlog.repository.LogRepositoryImpl.Companion.FILE_PATH
 import com.example.sandboxlog.service.RetrofitClient
-import io.reactivex.Scheduler
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers.io
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 
@@ -20,6 +14,8 @@ class LogsWorker(ctx: Context, params: WorkerParameters): Worker(ctx, params) {
     companion object {
         @JvmField
         val TAG = LogsWorker::class.java.simpleName
+
+        const val LOG_FILE_PATH = "log_file_path"
     }
 
     private val apiService = RetrofitClient.create()
@@ -28,24 +24,19 @@ class LogsWorker(ctx: Context, params: WorkerParameters): Worker(ctx, params) {
     override fun doWork(): Result {
         Log.d(TAG,"Loading logs to the server")
 
-        filePathData = inputData.getString(FILE_PATH) ?: return Result.failure()
+        filePathData = inputData.getString(LOG_FILE_PATH) ?: return Result.failure()
 
-        if (filePathData.isBlank()) {
-            return Result.failure()
-        }
-
-        return uploadLogs(filePathData)
+        return if (filePathData.isBlank()) Result.failure() else uploadLogs(filePathData)
     }
 
     private fun uploadLogs(filePath: String): Result {
-        val logFile = File(filePath)
-
-        val filePart = logFile.asRequestBody(MultipartBody.FORM)
-        val file = MultipartBody.Part.createFormData(
-            logFile.name,
-            logFile.name,
-            filePart
-        )
+        val file = File(filePath).let {
+            MultipartBody.Part.createFormData(
+                it.name,
+                it.name,
+                it.asRequestBody(MultipartBody.FORM)
+            )
+        }
 
         return try {
             val result = apiService.uploadLogs(file).execute()

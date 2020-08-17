@@ -6,19 +6,14 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.example.sandboxlog.LogManager
 import com.example.sandboxlog.LogsWorker
+import com.example.sandboxlog.LogsWorker.Companion.LOG_FILE_PATH
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.invoke
 import kotlinx.coroutines.withContext
 
 class LogRepositoryImpl(
     private val logManager: LogManager,
     private val workManager: WorkManager
 ): LogRepository {
-
-    companion object {
-        const val FILE_PATH = "file path"
-    }
 
     override fun startLogging() {
         logManager.resumeLogging()
@@ -41,7 +36,7 @@ class LogRepositoryImpl(
             stopLogging()
 
             val data = Data.Builder()
-                .putString(FILE_PATH, logManager.actualFilePath)
+                .putString(LOG_FILE_PATH, logManager.actualFilePath)
                 .build()
 
             val request = OneTimeWorkRequest.Builder(LogsWorker::class.java)
