@@ -11,5 +11,5 @@ interface GateDataService {
 
     @Multipart
     @POST("/logs_ecpshare")
-    fun uploadLogs(@Part file: MultipartBody.Part): Call<ResponseBody>
+    suspend fun uploadLogs(@Part file: MultipartBody.Part): ResponseBody
 }

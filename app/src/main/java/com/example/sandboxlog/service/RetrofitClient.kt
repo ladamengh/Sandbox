@@ -22,4 +22,17 @@ object RetrofitClient {
 
         return retrofit.create(GateDataService::class.java);
     }
+
+    suspend inline fun <T : Any> safeApiCall(crossinline apiRequest: suspend () -> T): Result<T> =
+        try {
+            Result.Success(apiRequest())
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
+
+    sealed class Result<out T : Any> {
+
+        data class Success<out Type : Any>(val data: Type) : Result<Type>()
+        data class Error(val exception: Exception) : Result<Nothing>()
+    }
 }

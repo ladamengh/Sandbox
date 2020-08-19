@@ -1,5 +1,6 @@
 package com.example.sandboxlog.repository
 
+import android.content.Context
 import android.util.Log
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
@@ -7,13 +8,20 @@ import androidx.work.WorkManager
 import com.example.sandboxlog.LogManager
 import com.example.sandboxlog.LogsWorker
 import com.example.sandboxlog.LogsWorker.Companion.LOG_FILE_PATH
+import com.example.sandboxlog.service.RetrofitClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import com.example.sandboxlog.service.RetrofitClient.Result
+import java.io.File
 
 class LogRepositoryImpl(
     private val logManager: LogManager,
-    private val workManager: WorkManager
+    private val appCtx: Context
 ): LogRepository {
+
+    private val apiService = RetrofitClient.create()
 
     override fun startLogging() {
         logManager.resumeLogging()
@@ -31,7 +39,7 @@ class LogRepositoryImpl(
         }
     }
 
-    override suspend fun uploadLogs() {
+    override suspend fun createUploadLogsTask() {
         withContext(Dispatchers.IO) {
             stopLogging()
 
@@ -43,9 +51,31 @@ class LogRepositoryImpl(
                 .setInputData(data)
                 .build()
 
-            Log.d("LogRepositoryImpl", "Trying to enqueue request")
+            Log.d("LogRepositoryImpl", "Trying to enqueue request, appCtx is $appCtx")
 
-            workManager.enqueue(request)
+            WorkManager.getInstance(appCtx).enqueue(request)
+        }
+    }
+
+    override suspend fun uploadLogs(logFilePath: String): Result<Any> {
+        val file = File(logFilePath).let {
+            MultipartBody.Part.createFormData(
+                it.name,
+                it.name,
+                it.asRequestBody(MultipartBody.FORM)
+            )
+        }
+
+        return try {
+            Log.d("LogRepositoryImpl", "Really uploading logs by apiService")
+            val result = RetrofitClient.safeApiCall {
+                apiService.uploadLogs(file)
+            }
+            Log.d("LogRepositoryImpl", "The result is $result")
+            result
+        } catch (throwable: Throwable) {
+            Log.e(LogsWorker.TAG, "An error occurred: $throwable")
+            Result.Error(throwable as Exception)
         }
     }
 }

@@ -4,13 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.work.WorkManager
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import java.io.File
 
 open class MainActivity : AppCompatActivity() {
 
@@ -31,7 +27,7 @@ open class MainActivity : AppCompatActivity() {
         buttonSend.setOnClickListener {
             Log.e(TAG, "BUTTON PRESSED")
             GlobalScope.launch {
-                (application as SandboxApp).uploadLogs()
+                (application as SandboxApp).createUploadLogsTask()
                 (application as SandboxApp).startLogging()
             }
         }

@@ -1,15 +1,11 @@
 package com.example.sandboxlog
 
 import android.util.Log
-import androidx.work.Data
-import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkManager
-import com.example.sandboxlog.interactor.UploadLogs
+import com.example.sandboxlog.interactor.CreateUploadLogsTask
 import kotlinx.coroutines.runBlocking
-import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
 
-class CrashHandler(private val uploadLogs: UploadLogs): Thread.UncaughtExceptionHandler {
+class CrashHandler(private val createUploadLogsTask: CreateUploadLogsTask): Thread.UncaughtExceptionHandler {
 
     companion object {
         @JvmField
@@ -19,7 +15,7 @@ class CrashHandler(private val uploadLogs: UploadLogs): Thread.UncaughtException
     override fun uncaughtException(t: Thread, e: Throwable) {
         Log.e(TAG, "uncaught exception $e")
 
-        runBlocking { uploadLogs() }
+        runBlocking { createUploadLogsTask() }
 
         exitProcess(1)
     }
