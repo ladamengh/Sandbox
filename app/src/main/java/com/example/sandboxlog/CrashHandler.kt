@@ -2,7 +2,9 @@ package com.example.sandboxlog
 
 import android.util.Log
 import com.example.sandboxlog.interactor.CreateUploadLogsTask
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
 
 class CrashHandler(private val createUploadLogsTask: CreateUploadLogsTask): Thread.UncaughtExceptionHandler {
@@ -15,7 +17,10 @@ class CrashHandler(private val createUploadLogsTask: CreateUploadLogsTask): Thre
     override fun uncaughtException(t: Thread, e: Throwable) {
         Log.e(TAG, "uncaught exception $e")
 
-        runBlocking { createUploadLogsTask() }
+        runBlocking {
+            createUploadLogsTask()
+            delay(1000)
+        }
 
         exitProcess(1)
     }

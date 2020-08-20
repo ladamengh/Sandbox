@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
+import com.example.sandboxlog.interactor.UploadLogs
 import com.example.sandboxlog.repository.LogRepository
 
 class MyWorkerFactory(private val logRepositoryImpl: LogRepository) : WorkerFactory() {
@@ -14,14 +15,10 @@ class MyWorkerFactory(private val logRepositoryImpl: LogRepository) : WorkerFact
         workerParameters: WorkerParameters
     ): ListenableWorker? {
 
-        return when(workerClassName) {
-            LogsWorker::class.java.name ->
-                LogsWorker(appContext, workerParameters).also {
-                    it.logRepository = logRepositoryImpl
-                }
-            else ->
-                null
+        return if (workerClassName == LogsWorker::class.java.name) {
+            LogsWorker(appContext, workerParameters).also { it.uploadLogs = UploadLogs(logRepositoryImpl) }
+        } else {
+            null
         }
-
     }
 }

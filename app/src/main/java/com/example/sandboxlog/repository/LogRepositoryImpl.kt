@@ -21,6 +21,11 @@ class LogRepositoryImpl(
     private val appCtx: Context
 ): LogRepository {
 
+    companion object {
+        @JvmField
+        val TAG = LogRepositoryImpl::class.java.simpleName
+    }
+
     private val apiService = RetrofitClient.create()
 
     override fun startLogging() {
@@ -58,6 +63,8 @@ class LogRepositoryImpl(
     }
 
     override suspend fun uploadLogs(logFilePath: String): Result<Any> {
+        Log.d(TAG, "Really uploading logs by apiService")
+
         val file = File(logFilePath).let {
             MultipartBody.Part.createFormData(
                 it.name,
@@ -65,17 +72,6 @@ class LogRepositoryImpl(
                 it.asRequestBody(MultipartBody.FORM)
             )
         }
-
-        return try {
-            Log.d("LogRepositoryImpl", "Really uploading logs by apiService")
-            val result = RetrofitClient.safeApiCall {
-                apiService.uploadLogs(file)
-            }
-            Log.d("LogRepositoryImpl", "The result is $result")
-            result
-        } catch (throwable: Throwable) {
-            Log.e(LogsWorker.TAG, "An error occurred: $throwable")
-            Result.Error(throwable as Exception)
-        }
+        return RetrofitClient.safeApiCall { apiService.uploadLogs(file) }
     }
 }

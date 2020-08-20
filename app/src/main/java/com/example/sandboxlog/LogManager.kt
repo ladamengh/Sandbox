@@ -15,7 +15,7 @@ class LogManager(private val filesDirectory: File) {
         val TAG = LogManager::class.java.simpleName
     }
 
-    lateinit var loggingProcess: Process
+    private lateinit var loggingProcess: Process
     private var logFile: File? = null
 
     var actualFilePath: String? = null
