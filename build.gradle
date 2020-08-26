@@ -1,3 +1,5 @@
+import jdk.nashorn.internal.objects.annotations.Getter
+
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     ext.kotlin_version = "1.3.72"
@@ -20,6 +22,78 @@ allprojects {
         jcenter()
     }
 }
+
+class myApk extends DefaultTask {
+    @Option(option="apkName", description="apkName for your file")
+    String apkName
+
+    @TaskAction
+    void uploadApk() {
+        def arg = "curl -F \"ecp-demo${apkName}.apk=" + // change to ecp-sharing-demo${apkName}.apk
+                "@${project.projectDir}\\app\\build\\outputs\\apk\\debug\\app-debug.apk\" " +
+                "https://gate-test-data.ecp-share.com/apks/"
+        project.exec {
+            commandLine("cmd", "/c", arg)
+        }
+    }
+}
+
+// gradle uploadApk -PapkName=-foo
+task uploadApk(type: myApk) { }
+
+//----------------------------------------------------------------------------------------
+/* это рабочее
+class Apk extends DefaultTask {
+    String apkName
+
+    @TaskAction
+    void uploadApk() {
+        def arg = "curl -F \"ecp-demo${apkName}.apk=" + // change to ecp-sharing-demo${apkName}.apk
+                "@${project.projectDir}\\app\\build\\outputs\\apk\\debug\\app-debug.apk\" " +
+                "https://gate-test-data.ecp-share.com/apks/"
+        project.exec {
+            commandLine("cmd", "/c", arg)
+        }
+    }
+}
+
+// gradle demo or gradle mgts whatever
+tasks.register("demo", Apk) {
+    group = 'apkUploads'
+    description = 'Uploads common demo apk'
+    apkName = ''
+}
+
+tasks.register("testing", Apk) {
+    group = 'apkUploads'
+    description = 'Uploads demo testing apk'
+    apkName = '-testing'
+}
+
+tasks.register("mgts", Apk) {
+    group = 'apkUploads'
+    description = 'Uploads demo mgts apk'
+    apkName = '-mgts'
+}
+
+tasks.register("mosobl", Apk) {
+    group = 'apkUploads'
+    description = 'Uploads demo mosobl apk'
+    apkName = '-mosobl'
+}
+
+tasks.register("rosseti", Apk) {
+    group = 'apkUploads'
+    description = 'Uploads demo rosseti apk'
+    apkName = '-rosseti'
+}
+
+tasks.register("tera", Apk) {
+    group = 'apkUploads'
+    description = 'Uploads demo tera apk'
+    apkName = '-tera'
+}
+*/
 
 task clean(type: Delete) {
     delete rootProject.buildDir
