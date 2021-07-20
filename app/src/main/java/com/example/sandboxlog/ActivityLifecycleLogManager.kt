@@ -9,19 +9,22 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class ActivityLifecycleLogManager(
-    private val startLogging: StartLogging,
+    private val startLogging:
+        StartLogging,
     private val pauseLogging: PauseLogging
-): Application.ActivityLifecycleCallbacks {
+) : Application.ActivityLifecycleCallbacks {
 
     override fun onActivityResumed(activity: Activity) {
         startLogging()
     }
 
     override fun onActivityPaused(activity: Activity) {
+
         GlobalScope.launch { pauseLogging() }
     }
 
-    override fun onActivityStarted(activity: Activity) {}
+    override fun onActivityStarted(activity: Activity) {
+    }
 
     override fun onActivityDestroyed(activity: Activity) {}
 

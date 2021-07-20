@@ -3,14 +3,14 @@ package com.example.sandboxlog
 import android.app.Application
 import android.util.Log
 import androidx.work.*
+import com.example.sandboxlog.interactor.CreateUploadLogsTask
 import com.example.sandboxlog.interactor.PauseLogging
 import com.example.sandboxlog.interactor.StartLogging
-import com.example.sandboxlog.interactor.CreateUploadLogsTask
 import com.example.sandboxlog.repository.LogRepository
 import com.example.sandboxlog.repository.LogRepositoryImpl
 import java.io.File
 
-class SandboxApp: Application(), Configuration.Provider {
+class SandboxApp : Application(), Configuration.Provider {
 
     companion object {
         @JvmField

@@ -2,12 +2,11 @@ package com.example.sandboxlog
 
 import android.util.Log
 import com.example.sandboxlog.interactor.CreateUploadLogsTask
+import kotlin.system.exitProcess
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import java.util.concurrent.TimeUnit
-import kotlin.system.exitProcess
 
-class CrashHandler(private val createUploadLogsTask: CreateUploadLogsTask): Thread.UncaughtExceptionHandler {
+class CrashHandler(private val createUploadLogsTask: CreateUploadLogsTask) : Thread.UncaughtExceptionHandler {
 
     companion object {
         @JvmField

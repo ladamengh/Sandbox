@@ -1,2 +1,3 @@
+include ':customktlintrules'
 include ':app'
 rootProject.name = "SandboxLog"

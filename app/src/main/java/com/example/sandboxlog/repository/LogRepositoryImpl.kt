@@ -9,17 +9,17 @@ import com.example.sandboxlog.LogManager
 import com.example.sandboxlog.LogsWorker
 import com.example.sandboxlog.LogsWorker.Companion.LOG_FILE_PATH
 import com.example.sandboxlog.service.RetrofitClient
+import com.example.sandboxlog.service.RetrofitClient.Result
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import com.example.sandboxlog.service.RetrofitClient.Result
-import java.io.File
 
 class LogRepositoryImpl(
     private val logManager: LogManager,
     private val appCtx: Context
-): LogRepository {
+) : LogRepository {
 
     companion object {
         @JvmField
@@ -69,7 +69,7 @@ class LogRepositoryImpl(
             MultipartBody.Part.createFormData(
                 it.name,
                 it.name,
-                it.asRequestBody(MultipartBody.FORM)
+                it.asRequestBody(MultipartBody.FORM),
             )
         }
         return RetrofitClient.safeApiCall { apiService.uploadLogs(file) }

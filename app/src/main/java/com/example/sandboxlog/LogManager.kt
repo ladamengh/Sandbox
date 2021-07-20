@@ -3,10 +3,8 @@ package com.example.sandboxlog
 import android.util.Log
 import java.io.File
 import java.io.FileNotFoundException
-import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 class LogManager(private val filesDirectory: File) {
 

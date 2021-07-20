@@ -12,7 +12,7 @@ class MyWorkerFactory(private val logRepositoryImpl: LogRepository) : WorkerFact
     override fun createWorker(
         appContext: Context,
         workerClassName: String,
-        workerParameters: WorkerParameters
+        workerParameters: WorkerParameters,
     ): ListenableWorker? {
 
         return if (workerClassName == LogsWorker::class.java.name) {

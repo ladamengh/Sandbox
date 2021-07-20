@@ -5,7 +5,6 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-
 object RetrofitClient {
 
     fun create(): GateDataService {
@@ -20,7 +19,7 @@ object RetrofitClient {
             .client(client)
             .build()
 
-        return retrofit.create(GateDataService::class.java);
+        return retrofit.create(GateDataService::class.java)
     }
 
     suspend inline fun <T : Any> safeApiCall(crossinline apiRequest: suspend () -> T): Result<T> =
