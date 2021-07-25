@@ -1,4 +1,4 @@
-package com.example.customktlintrules.detektmodule
+package com.example.customktlintrules.ktlintmodule
 
 import com.pinterest.ktlint.core.Rule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
