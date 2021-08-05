@@ -10,7 +10,6 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.18.0-RC2"
         classpath "org.jlleitschuh.gradle:ktlint-gradle:10.1.0"
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -18,9 +17,59 @@ buildscript {
     }
 }
 
+plugins {
+    id "io.gitlab.arturbosch.detekt" version "$DETEKT_VERSION"
+}
+
+def projectSource = file(projectDir)
+def configFile = files("$rootDir/config/detekt/detekt.yml")
+def baselineFile = file("$rootDir/config/detekt/baseline.xml")
+def kotlinFiles = "**/*.kt"
+def resourceFiles = "**/resources/**"
+def buildFiles = "**/build/**"
+
+apply plugin: 'io.gitlab.arturbosch.detekt'
+
+tasks.register("detektAll", io.gitlab.arturbosch.detekt.Detekt) {
+    def autoFix = project.hasProperty('detektAutoFix')
+
+    description = "Custom DETEKT build for all modules"
+    parallel = true
+    ignoreFailures = false
+    autoCorrect = autoFix
+    buildUponDefaultConfig = true
+    setSource(projectSource)
+    baseline.set(baselineFile)
+    config.setFrom(configFile)
+    include(kotlinFiles)
+    exclude(resourceFiles, buildFiles)
+    reports {
+        html.enabled = true
+        xml.enabled = false
+        txt.enabled = false
+    }
+}
+
+tasks.register("detektGenerateBaseline", io.gitlab.arturbosch.detekt.DetektCreateBaselineTask) {
+    description = "Custom DETEKT build to build baseline for all modules"
+    parallel = true
+    ignoreFailures = false
+    buildUponDefaultConfig = true
+    setSource(projectSource)
+    baseline.set(baselineFile)
+    config.setFrom(configFile)
+    include(kotlinFiles)
+    exclude(resourceFiles, buildFiles)
+}
+
+dependencies {
+    detekt project(":detektcustomrules")
+
+    detektPlugins "io.gitlab.arturbosch.detekt:detekt-formatting:$DETEKT_VERSION"
+}
+
 allprojects {
     apply plugin: "org.jlleitschuh.gradle.ktlint"
-    apply plugin: "io.gitlab.arturbosch.detekt"
     repositories {
         google()
         jcenter()

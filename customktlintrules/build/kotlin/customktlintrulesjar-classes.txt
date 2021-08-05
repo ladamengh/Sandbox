@@ -1,1 +1,0 @@
-C:\Users\LadaNonCyrillic\AndroidStudioProjects\SandboxLog\customktlintrules\build\classes\kotlin\main\com\example\customktlintrules\detektmodule\CustomDetektRuleSetProvider.class;C:\Users\LadaNonCyrillic\AndroidStudioProjects\SandboxLog\customktlintrules\build\classes\kotlin\main\com\example\customktlintrules\detektmodule\TrailingCommaRule.class

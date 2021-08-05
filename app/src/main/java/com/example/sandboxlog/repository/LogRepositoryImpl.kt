@@ -69,7 +69,7 @@ class LogRepositoryImpl(
             MultipartBody.Part.createFormData(
                 it.name,
                 it.name,
-                it.asRequestBody(MultipartBody.FORM),
+                it.asRequestBody(MultipartBody.FORM)
             )
         }
         return RetrofitClient.safeApiCall { apiService.uploadLogs(file) }

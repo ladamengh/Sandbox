@@ -1,3 +1,2 @@
-include ':customktlintrules'
-include ':app'
+include ':app', ':customktlintrules', ':detektcustomrules'
 rootProject.name = "SandboxLog"

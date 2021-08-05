@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>EmptyFunctionBlock:ActivityLifecycleLogManager.kt$ActivityLifecycleLogManager${}</ID>
+    <ID>FinalNewline:com.example.customktlintrules.ExampleInstrumentedTest.kt:1</ID>
+    <ID>MagicNumber:CrashHandler.kt$CrashHandler$1000</ID>
+    <ID>NewLineAtEndOfFile:ExampleInstrumentedTest.kt$com.example.customktlintrules.ExampleInstrumentedTest.kt</ID>
+    <ID>NoWildcardImports:com.example.customktlintrules.ExampleInstrumentedTest.kt:9</ID>
+    <ID>NoWildcardImports:com.example.sandboxlog.LogManager.kt:7</ID>
+    <ID>NoWildcardImports:com.example.sandboxlog.SandboxApp.kt:5</ID>
+    <ID>SwallowedException:LogManager.kt$LogManager$catch (e: IllegalThreadStateException) { destroy() waitFor() }</ID>
+    <ID>ThrowingExceptionsWithoutMessageOrCause:MainActivity.kt$MainActivity$NullPointerException()</ID>
+    <ID>TooGenericExceptionCaught:RetrofitClient.kt$RetrofitClient$e: Exception</ID>
+    <ID>WildcardImport:SandboxApp.kt$import androidx.work.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

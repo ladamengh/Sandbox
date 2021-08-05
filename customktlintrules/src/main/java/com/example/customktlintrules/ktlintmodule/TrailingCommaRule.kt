@@ -20,7 +20,7 @@ class TrailingCommaRule : Rule("mandate-trailing-comma") {
     ) {
         if (node.isArgumentOrParameterList() && node.isMultiLine()) {
             val lastArgument = node.lastArgumentOrParameter()
-            if (lastArgument != null && lastArgument.treeNext.elementType != COMMA) {
+            if (lastArgument != null && !lastArgument.treeNext.chars.contains(',')) {
                 emit(
                     lastArgument.startOffset + lastArgument.textLength,
                     "Trailing comma is missing",
