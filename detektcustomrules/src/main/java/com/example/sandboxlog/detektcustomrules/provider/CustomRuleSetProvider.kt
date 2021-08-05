@@ -1,5 +1,6 @@
 package com.example.sandboxlog.detektcustomrules.provider
 
+import com.example.sandboxlog.detektcustomrules.rules.ClassSimpleName
 import com.example.sandboxlog.detektcustomrules.rules.TrailingComma
 import io.gitlab.arturbosch.detekt.api.Config
 import io.gitlab.arturbosch.detekt.api.RuleSet
@@ -15,6 +16,7 @@ class CustomRuleSetProvider : RuleSetProvider {
         ruleSetId,
         listOf(
             TrailingComma(config),
+            ClassSimpleName(config),
         ),
     )
 }

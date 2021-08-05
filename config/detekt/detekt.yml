@@ -790,3 +790,5 @@ detekt-custom-rules:
   TrailingComma:
     active: true
     autoCorrect: true
+  ClassSimpleName:
+    active: true
